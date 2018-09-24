@@ -193,7 +193,12 @@ int bitCount(int x) {
  *   Rating: 4 
  */
 int bang(int x) {
-  return (((~((~x)+1)) & (~x)) >> 31) & 1;
+  // Only 0xffffffff and 0x7fffffff will change the highest bit after plus 1.
+  // So after ^ operation, only those two will have 1 on the highest bit. 
+  // But only 0xffffffff which is ~0 will also have 1 on the highest bit before
+  // the ^ operation. So after the & operation, only x=0 will have the result 
+  // which has 1 on the highest bit.  
+  return ((((~x+1)^(~x))&(~x))>>31)&1;
 }
 /* 
  * tmin - return minimum two's complement integer 
