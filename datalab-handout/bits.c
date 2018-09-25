@@ -207,7 +207,7 @@ int bang(int x) {
  *   Rating: 1
  */
 int tmin(void) {
-  return 2;
+  return 1<<31;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
@@ -219,7 +219,13 @@ int tmin(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  // Get 32-n
+	int shift = (~n + 1) & 0x1f;
+  // For integer than can be represent by n bits, it should have a bunch of 1s
+  // from the most significant bit.
+	int key = (x << shift) >> shift;  
+  return !(x^key);
+
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
