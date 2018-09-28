@@ -221,11 +221,10 @@ int tmin(void) {
 int fitsBits(int x, int n) {
   // Get 32-n
 	int shift = (~n + 1) & 0x1f;
-  // For integer than can be represent by n bits, it should have a bunch of 1s
-  // from the most significant bit.
+  // For negetive integer than can be represent by n bits, it should have a 
+  // bunch of 1s from the most significant bit.
 	int key = (x << shift) >> shift;  
-  return !(x^key);
-
+  return !(x^key); 
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
@@ -236,7 +235,10 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int divpwr2(int x, int n) {
-    return 2;
+  int neg = x>>31; // neg == 0xffffffff when x<0, neg == 0x00000000 when x>0
+  int lastNbitsMask = ~0 + (1<<n);
+  // The result should be added 1 when  1.x<0 && 2.there are 1(s) in last n bits
+  return (x>>n) + !!(neg&lastNbitsMask&x);
 }
 /* 
  * negate - return -x 
@@ -246,7 +248,7 @@ int divpwr2(int x, int n) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x+1;
 }
 /* 
  * isPositive - return 1 if x > 0, return 0 otherwise 

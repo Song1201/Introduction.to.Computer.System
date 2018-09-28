@@ -1,18 +1,12 @@
 #include <stdio.h>
 
 int main(){
-  int x = -1;
-  int n = 2;
-  int shift = ~n + 1;
-  int shiftLow5 = shift&(0x0000001f);
-  printf("%d",shiftLow5);
-  printf("\n");
-  int midKey = x<<shift;
-  printf("%d",midKey);
-  printf("\n");
-  int key = midKey>>shift;
-  printf("%d",key);
-  printf("\n");
+  divpwr2(0x9bfceb01,1);
 
   return 0;
+}
+
+int divpwr2(int x, int n) {
+  printf("%d\n",(!!(x&(1<<31)))&(!!n)&(!!(x&(~(-1<<n)))));
+  return (x>>n)+((!!(x&(1<<31)))&(!!n)&(!!(x&(~(-1<<n)))));
 }
