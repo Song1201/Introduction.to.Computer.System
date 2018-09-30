@@ -287,7 +287,14 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4
  */
 int ilog2(int x) {
-  return 2;
+  // If there is 1 from the 31-17 bit, base will be 16. Otherwise base is 0.
+  int base = (!!(x>>16))<<4;
+  // Follow the divide&conquer method. Process a smaller range each time.
+  base += (!!(x>>(base+8)))<<3;
+  base += (!!(x>>(base+4)))<<2;
+  base += (!!(x>>(base+2)))<<1;
+  base += !!(x>>(base+1));
+  return base;
 }
 /* 
  * float_neg - Return bit-level equivalent of expression -f for
