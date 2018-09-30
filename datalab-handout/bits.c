@@ -308,10 +308,12 @@ int ilog2(int x) {
  *   Rating: 2
  */
 unsigned float_neg(unsigned uf) {
-  // Key point is to identify the NaN. For a floating point value in C, it is 
-  // NaN when the 31-24 bit are all 1, but there is still 1 in 23-1 bit.
-  // ATTENTION!!! A question from this function. Why define the above situation as Nan? It
-  // could have an actual value.!!!!!!!!!!!!
+  // Key point is to identify the NaN. In IEEE 754, for a floating point value 
+  // in C, it is NaN when the 31-24 bit are all 1, but there is still 1 in 
+  // 23-1 bit.
+  // !!!ATTENTION. A question from this function. Why define the above situation 
+  //as Nan? It could have an actual value.
+  // Guessed Answer: To avoid overflow when operating floats.
   // If uf is Nan, then return it.
   if ((uf & 0x7fffffff) > 0x7f800000) return uf;
   // Otherwise return the negetive uf.
