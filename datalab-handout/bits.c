@@ -268,8 +268,16 @@ int isPositive(int x) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  int yMinusX = y + ((~x)+1);
-  return !(x&(1<<31));
+  int msbX = (x>>31)&1;
+  int msbY = (y>>31)&1;
+  int equalSign = !(msbX^msbY);
+  // if x,y have equal sign, x<=y iff x+(~y)<0. This can be proved when detailed
+  // analyse in different cases:1.x>=0, y>=0 2.x<0,y<0. In case 2, y=-1 need to
+  // be special considered but we can have the same conclusion.
+  int equalSignTrue = equalSign&((x+(~y))>>31);
+  // if x,y do not have equal sign, it quite easy to decide.
+  int diffSignTrue = (!equalSign)&msbX; 
+  return equalSignTrue|diffSignTrue;
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
