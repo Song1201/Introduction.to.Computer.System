@@ -329,7 +329,49 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
-  return 2;
+  // First need to convert negetive number to its absolute value. Because the 
+  // fraction part in floating point number doesn't use 2's component number.
+  // Then shift them to the right, until the shifted value equals to 1. At that 
+  // time, the shifted bits is the exponent we need. 2 special cases need to be 
+  // considered. First, no 1 exists in 0x00000000, so just return its floating
+  // point representation directly, which is also 0x00000000. Second, 0x80000000
+  // doesn't have a positive absolute value. So deal with it sperately.
+
+  // x == 0, return x.
+  if(!x) return x;
+  else {
+    int LENGTH = 32;
+    int FRACTION_LENGTH = 23;
+    int FRACTION_MASK = 0x007fffff;
+    int BIAS = 127;
+    int INT_MIN = 0x80000000;
+    int exponent = 0;
+    int fraction = 0;
+    int signX = (x>>31)&1;
+    // If more bits than FRACTION_LENGTH need to be used to represent x, some 
+    // bits will be truncated during right shift. But we want to round. So add
+    // extra to the final result. IEEE754 floating point number rounding rules:
+    // Round to the nearest value. When have equal accuracy loss rounding to 
+    // both sides, round to the even side, which means after rounding, the last
+    // bit of the rounded number should be 0.
+    int extra = 0;
+    // x is 0x80000000
+    if(x==INT_MIN) exponent = LENGTH-1;
+    // x is other negetive or positive
+    else {
+      if(signX) x = -x;
+      while((x>>exponent)!=1) exponent++;
+      int xFractionLeft = x<<(LENGTH-exponent);
+      int numTruncatedBits = LENGTH - FRACTION_LENGTH;
+      fraction = (xFractionLeft>>numTruncatedBits) & FRACTION_MASK;
+      int truncatedBits = xFractionLeft & ((1<<numTruncatedBits)-1);
+      int roundThresh = 1<<(numTruncatedBits-1);
+      if(truncatedBits>roundThresh) extra = 1;
+      else if(truncatedBits==roundThresh && (fraction&1)) extra = 1;
+    }
+    return (signX<<(LENGTH-1))|((((exponent+BIAS)<<FRACTION_LENGTH)|fraction)+\
+    extra);
+  }
 }
 /* 
  * float_twice - Return bit-level equivalent of expression 2*f for
