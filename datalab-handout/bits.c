@@ -385,5 +385,17 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+  // In IEEE 754, for a floating point value, it is NaN when the 31-24 bit are 
+  // all 1, but there is still 1 in the 23-1 bit. When all exponent bits are 1, 
+  // means it is inf, then just return it.
+  if((uf&0x7fffffff)>=0x7f800000) return uf;
+  // If the exponent is all 0s, and the mantissa(fraction) is non-zero, then the
+  // value is treated as a denormalized number. The denormalized numbers do not 
+  // have an assumed leading 1 before the binary point. Also, the power of 2 
+  // when converting to decimal number is treated as -126, not -127. To deal 
+  // with denormalized numbers, we shift them 1 bit to the left to *2, when it 
+  // moves a 1 into the exponent, it is interpreted as a normal floating point
+  // value again and the value is equal to the origin denormalized value *2.
+  if((uf&0x7f800000)==0) return (uf&0x80000000|(uf<<1));
+  return uf + (1<<23);
 }
