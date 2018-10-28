@@ -337,6 +337,11 @@ unsigned float_i2f(int x) {
   // point representation directly, which is also 0x00000000. Second, 0x80000000
   // doesn't have a positive absolute value. So deal with it sperately.
 
+  int xFractionLeft;
+  int numTruncatedBits;
+  int truncatedBits;
+  int roundThresh;
+
   // x == 0, return x.
   if(!x) return x;
   else {
@@ -361,11 +366,11 @@ unsigned float_i2f(int x) {
     else {
       if(signX) x = -x;
       while((x>>exponent)!=1) exponent++;
-      int xFractionLeft = x<<(LENGTH-exponent);
-      int numTruncatedBits = LENGTH - FRACTION_LENGTH;
+      xFractionLeft = x<<(LENGTH-exponent);
+      numTruncatedBits = LENGTH - FRACTION_LENGTH;
       fraction = (xFractionLeft>>numTruncatedBits) & FRACTION_MASK;
-      int truncatedBits = xFractionLeft & ((1<<numTruncatedBits)-1);
-      int roundThresh = 1<<(numTruncatedBits-1);
+      truncatedBits = xFractionLeft & ((1<<numTruncatedBits)-1);
+      roundThresh = 1<<(numTruncatedBits-1);
       if(truncatedBits>roundThresh) extra = 1;
       else if(truncatedBits==roundThresh && (fraction&1)) extra = 1;
     }
@@ -396,6 +401,6 @@ unsigned float_twice(unsigned uf) {
   // with denormalized numbers, we shift them 1 bit to the left to *2, when it 
   // moves a 1 into the exponent, it is interpreted as a normal floating point
   // value again and the value is equal to the origin denormalized value *2.
-  if((uf&0x7f800000)==0) return (uf&0x80000000|(uf<<1));
+  if((uf&0x7f800000)==0) return ((uf&0x80000000)|(uf<<1));
   return uf + (1<<23);
 }
